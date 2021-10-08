@@ -69,6 +69,7 @@ export default function App() {
   return (
     <Container>
       <Settings>
+        <h1>React Scrolling Calendar</h1>
         <h3>Calendar range</h3>
         <input type="date" value={fromDateStr} onChange={(e) => setFromDateStr(e.target.value)}/>
         <input type="date" value={toDateStr} onChange={(e) => setToDateStr(e.target.value)}/>
@@ -79,7 +80,6 @@ export default function App() {
         <button onClick={ () => applyPreset(90) }>Past 90 days</button>
         <button onClick={ () => applyPreset(180) }>Past 180 days</button>
         <button onClick={ () => applyPreset(365) }>Past 365 days</button>
-
       </Settings>
       <Demo>
         <Calendar fromDate={fromDate} toDate={toDate} rangeFrom={rangeFrom} rangeTo={rangeTo} onClick={ (date) => handleDateClick(date) } />
