@@ -5,9 +5,7 @@ import Calendar from './Calendar/Calendar';
 const Container = styled.div`
   min-height: 100vh;
   display: flex;
-  /* align-items: center; */
   justify-content: center;
-  /* flex-direction: column; */
 `;
 
 const Demo = styled.div`
