@@ -56,6 +56,11 @@ export default function App() {
     setRangeTo(today);
   }
 
+  function clearSelection() {
+    setRangeFrom(null);
+    setRangeTo(null);
+  }
+
   useEffect(() => {
     let date = new Date(fromDateStr);
     setFromDate(date);
@@ -80,6 +85,8 @@ export default function App() {
         <button onClick={ () => applyPreset(90) }>Past 90 days</button>
         <button onClick={ () => applyPreset(180) }>Past 180 days</button>
         <button onClick={ () => applyPreset(365) }>Past 365 days</button>
+        <hr/>
+        <button onClick={ () => clearSelection() }>Clear selection</button>
       </Settings>
       <Demo>
         <Calendar fromDate={fromDate} toDate={toDate} rangeFrom={rangeFrom} rangeTo={rangeTo} onClick={ (date) => handleDateClick(date) } />
