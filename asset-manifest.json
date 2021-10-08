@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/react-scrolling-calendar/static/css/main.b592c758.chunk.css",
-    "main.js": "/react-scrolling-calendar/static/js/main.25bb641f.chunk.js",
-    "main.js.map": "/react-scrolling-calendar/static/js/main.25bb641f.chunk.js.map",
+    "main.js": "/react-scrolling-calendar/static/js/main.23c25c4b.chunk.js",
+    "main.js.map": "/react-scrolling-calendar/static/js/main.23c25c4b.chunk.js.map",
     "runtime-main.js": "/react-scrolling-calendar/static/js/runtime-main.add85a3f.js",
     "runtime-main.js.map": "/react-scrolling-calendar/static/js/runtime-main.add85a3f.js.map",
     "static/js/2.0b067d5f.chunk.js": "/react-scrolling-calendar/static/js/2.0b067d5f.chunk.js",
@@ -15,6 +15,6 @@
     "static/js/runtime-main.add85a3f.js",
     "static/js/2.0b067d5f.chunk.js",
     "static/css/main.b592c758.chunk.css",
-    "static/js/main.25bb641f.chunk.js"
+    "static/js/main.23c25c4b.chunk.js"
   ]
 }
