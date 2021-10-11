@@ -39,22 +39,40 @@ export default function App() {
   const [ rangeFrom, setRangeFrom ] = useState();
   const [ rangeTo, setRangeTo ] = useState();
 
+  const [ preset, setPreset ] = useState(false);
+  const [ inclToday, setInclToday ] = useState(false);
+
   function handleDateClick(date) {
+    setPreset(false);
     if (!rangeFrom || (rangeFrom && rangeTo)) {
       setRangeFrom(date);
       setRangeTo(null);
     } else {
-      setRangeTo(date);
+      if (date.toLocaleDateString('en-CA') > rangeFrom.toLocaleDateString('en-CA')) {
+        setRangeTo(date);
+      } else if (date.toLocaleDateString('en-CA') < rangeFrom.toLocaleDateString('en-CA')) {
+        setRangeTo(new Date(rangeFrom));
+        setRangeFrom(date)
+      }
     }
   }
 
-  function applyPreset(days) {
-    let from = new Date();
-    from.setHours(0,0,0,0);
-    from.setDate(today.getDate() - days);
-    setRangeFrom(from);
-    setRangeTo(today);
-  }
+  useEffect(() => {
+    if (preset > 0) {
+      const today = new Date();
+      today.setHours(0,0,0,0);
+
+      console.log("HMMM...");
+      const from = new Date();
+      from.setHours(0,0,0,0);
+      from.setDate(today.getDate() - preset);
+      setRangeFrom(from);
+
+      const to = new Date(today);
+      to.setDate(to.getDate() - (inclToday ? 0 : 1));
+      setRangeTo(to);
+    }
+  },[inclToday,preset])
 
   function clearSelection() {
     setRangeFrom(null);
@@ -78,13 +96,17 @@ export default function App() {
         <h3>Calendar range</h3>
         <input type="date" value={fromDateStr} onChange={(e) => setFromDateStr(e.target.value)}/>
         <input type="date" value={toDateStr} onChange={(e) => setToDateStr(e.target.value)}/>
-        <p>(Too long a range will kill the page)</p>
+        <p>(Too long a range will kill the page... Should probably implement some lazy rendering...)</p>
         <h3>Presets</h3>
-        <button onClick={ () => applyPreset(7) }>Past 7 days</button>
-        <button onClick={ () => applyPreset(30) }>Past 30 days</button>
-        <button onClick={ () => applyPreset(90) }>Past 90 days</button>
-        <button onClick={ () => applyPreset(180) }>Past 180 days</button>
-        <button onClick={ () => applyPreset(365) }>Past 365 days</button>
+        <label>
+          <input type="checkbox" checked={inclToday} onChange={() => setInclToday(!inclToday)}/>
+          Include today
+        </label>
+        <button onClick={ () => setPreset(7) }>Past 7 days</button>
+        <button onClick={ () => setPreset(30) }>Past 30 days</button>
+        <button onClick={ () => setPreset(90) }>Past 90 days</button>
+        <button onClick={ () => setPreset(180) }>Past 180 days</button>
+        <button onClick={ () => setPreset(365) }>Past 365 days</button>
         <hr/>
         <button onClick={ () => clearSelection() }>Clear selection</button>
       </Settings>

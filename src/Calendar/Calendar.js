@@ -128,13 +128,13 @@ function WeekDay({
   disabled,
   onClick,
   rangeStart,
-  rangeEnd,
-  isToday
+  rangeEnd
 }) {
-  const todayRef = useRef();
+  const dayRef = useRef();
+  const isToday = isSameDate(date, new Date());
 
   useEffect(() => {
-    isToday && todayRef.current.scrollIntoView(true);
+    isToday && dayRef.current.scrollIntoView(true);
   },[isToday]);
 
   const evenMonth = date.getMonth() % 2 === 0;
@@ -155,7 +155,7 @@ function WeekDay({
             inRange={ inRange }
             isToday={ isToday }
             onClick={ () => !disabled && onClick && onClick(date) }
-            ref={todayRef}
+            ref={dayRef}
           >
             {date.getDate()}
           </DayButton>
@@ -165,29 +165,51 @@ function WeekDay({
   )
 }
 
+function dateToISO(date) {
+  return date?.toLocaleDateString('en-CA');
+}
+
+function isSameDate(dateA,dateB) {
+  return dateToISO(dateA) === dateToISO(dateB);
+}
+
+function isInRange(date,range) {
+  return dateToISO(date) >= dateToISO(range[0]) && dateToISO(date) <= dateToISO(range[1]);
+}
+
+function advanceDate(date,days) {
+  let newDate = new Date(date);
+  newDate.setDate(date.getDate()+days);
+  newDate.setHours(0,0,0,0);
+  return newDate;
+}
+
+function startOfWeek(date) {
+  let dayOfWeek = date.getDay();
+  return advanceDate(date,-dayOfWeek);
+}
+
 function renderWeek({
   startOfWeekDate,
-  fromDateMs,
-  toDateMs,
+  fromDate,
+  toDate,
   onClick,
   selectedDates
 }) {
   let days = [];
-  let todayMs = new Date();
-  todayMs.setHours(0,0,0,0);
-  todayMs = todayMs.getTime();
-
 
   for (let i = 0; i < 7; i++) {
-    let date = new Date(startOfWeekDate);
-    date.setDate(startOfWeekDate.getDate() + i);
-    let isToday = date.getTime() === todayMs;
-    let disabled = date.getTime() < fromDateMs || date.getTime() > toDateMs;
-    let selected = date.getTime() === selectedDates[0] || date.getTime() === selectedDates[1];
-    let rangeStart = date.getTime() === selectedDates[0] && selectedDates[1];
-    let rangeEnd = date.getTime() === selectedDates[1];
-    let inRange = date.getTime() > selectedDates[0] && date.getTime() < selectedDates[1];
-    days.push(<WeekDay onClick={onClick} disabled={disabled} isToday={isToday} selected={selected} rangeStart={rangeStart} rangeEnd={rangeEnd} inRange={inRange} date={date} key={date.getTime()}/>);
+    let date = advanceDate(startOfWeekDate,i);
+    days.push(<WeekDay
+      date={ date }
+      disabled={ !isInRange(date,[fromDate,toDate]) }
+      selected={ isSameDate(date,selectedDates[0]) || isSameDate(date,selectedDates[1]) }
+      rangeStart={ isSameDate(date,selectedDates[0]) && selectedDates[1] }
+      rangeEnd={ isSameDate(date,selectedDates[1]) }
+      inRange={ isInRange(date,selectedDates) }
+      onClick={ onClick }
+      key={ date.getTime() }
+    />);
   }
 
   return (
@@ -203,38 +225,31 @@ function renderCalendar({
   onClick,
   selectedDates
 }) {
-  let dayOfWeek = fromDate.getDay();
-  let startOfFirstWeekDate = new Date(fromDate);
-  startOfFirstWeekDate.setDate(fromDate.getDate() - dayOfWeek);
-  startOfFirstWeekDate.setHours(0,0,0,0);
-
-  let fromDateMs = fromDate.getTime();
-  let toDateMs = toDate.getTime();
   let months = [];
   let weeks = [];
-  let prevDate = new Date(startOfFirstWeekDate);
-  let currentDate = new Date(startOfFirstWeekDate);
+  let prevDate;
+  let currentDate = startOfWeek(fromDate);
 
-  while (currentDate.getTime() < toDateMs) {          // Add weeks to months until toDate is reached
-    if (currentDate.getDate() < prevDate.getDate()) { // We've reached a new month
-      months.push({weeks,date: prevDate});            // Push a new month's weeks
-      weeks = [];                                     // Reset the weeks bucket
+  while (dateToISO(currentDate) <= dateToISO(toDate)) { // Add weeks to months until toDate is reached
+
+    if (currentDate.getDate() < prevDate?.getDate()) {  // We've reached a new month
+      months.push({weeks,date: prevDate});              // Push a new month's weeks
+      weeks = [];                                       // Reset the weeks bucket
     }
 
     weeks.push(renderWeek({
       startOfWeekDate: currentDate,
-      fromDateMs,
-      toDateMs,
+      fromDate,
+      toDate,
       selectedDates,
       onClick
     }));
 
-    prevDate = new Date(currentDate);               // Set new prevDate
-    currentDate.setDate(currentDate.getDate() + 7); // Advance currentDate by a week (7 days)
-    currentDate.setHours(0,0,0,0);
+    prevDate = new Date(currentDate);         // Set new prevDate
+    currentDate = advanceDate(currentDate,7); // Advance currentDate by a week (7 days)
   }
   
-  months.push({weeks,date: prevDate});              // Add the last month's weeks
+  months.push({weeks,date: prevDate}); // Add the last month's weeks
 
   return (
     months.map(({weeks,date}) => {
@@ -261,7 +276,7 @@ export default function Calendar({fromDate,toDate,rangeFrom,rangeTo,onClick}) {
         <DayHeader>Sa</DayHeader>
       </Week>
       <CalendarFrame>
-        { renderCalendar({ fromDate, toDate, selectedDates: [rangeFrom?.getTime(),rangeTo?.getTime()].sort(), onClick: (date) => onClick(date) }) }
+        { renderCalendar({ fromDate, toDate, selectedDates: [rangeFrom,rangeTo], onClick: (date) => onClick(date) }) }
       </CalendarFrame>
     </CalendarContainer>
   );
